@@ -141,8 +141,6 @@ const DivisionGame: React.FC<DivisionGameProps> = ({
   const renderProblem = () => {
     if (!gameState.currentProblem) return null;
 
-    const { firstNumber, secondNumber } = gameState.currentProblem;
-
     // Vertical format for Grade 3 division
     const { lines } = ProblemGenerator.formatVerticalProblem(gameState.currentProblem);
 
