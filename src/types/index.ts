@@ -45,3 +45,20 @@ export interface DigitInput {
   hundreds: string;
   thousands: string;
 }
+
+export interface ProgressState {
+  addition: number; // 0-5 questions completed
+  subtraction: number; // 0-5 questions completed
+  multiplication: number; // 0-5 questions completed (Grade 3 only)
+  division: number; // 0-5 questions completed (Grade 3 only)
+  englishLetters: number; // 0-5 questions completed
+}
+
+export interface GameTopic {
+  id: string;
+  name: string;
+  nameHe: string;
+  icon: string;
+  requiredGrade: 1 | 3;
+  questionsRequired: number;
+}

@@ -1,0 +1,64 @@
+<svg width="200" height="400" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4158D0" />
+      <stop offset="50%" style="stop-color:#C850C0" />
+      <stop offset="100%" style="stop-color:#FFCC70" />
+    </linearGradient>
+
+    <radialGradient id="windowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#e0f7fa" />
+      <stop offset="100%" style="stop-color:#4fc3f7" />
+    </radialGradient>
+
+    <linearGradient id="fireGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff" />
+      <stop offset="30%" style="stop-color:#fff700" />
+      <stop offset="100%" style="stop-color:#ff00a2; stop-opacity:0" />
+    </linearGradient>
+
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <style>
+      @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+      50% { transform: translateY(-20px) rotate(1.5deg); }
+      }
+      @keyframes thrust {
+      0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.8; }
+      50% { transform: scaleY(1.4) scaleX(1.1); opacity: 1; }
+      }
+      @keyframes starPulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+      }
+      .rocket-container { animation: float 3s ease-in-out infinite; transform-origin: center; }
+      .main-flame { animation: thrust 0.1s ease-in-out infinite; transform-origin: top; }
+      .magic-star { animation: starPulse var(--d) ease-in-out infinite; fill: #FFCC70; }
+    </style>
+  </defs>
+
+  <circle class="magic-star" cx="40" cy="100" r="3" style="--d: 1.5s" filter="url(#neonGlow)"/>
+  <circle class="magic-star" cx="160" cy="150" r="2" style="--d: 1s" filter="url(#neonGlow)"/>
+  <circle class="magic-star" cx="50" cy="300" r="2.5" style="--d: 2s" filter="url(#neonGlow)"/>
+
+  <g class="rocket-container">
+    <path class="main-flame" d="M85,250 Q100,360 115,250" fill="url(#fireGrad)" filter="url(#neonGlow)" />
+
+    <path d="M65,220 L35,260 Q35,210 65,190 Z" fill="#2a0a5e" stroke="#FFCC70" stroke-width="2" />
+    <path d="M135,220 L165,260 Q165,210 135,190 Z" fill="#2a0a5e" stroke="#FFCC70" stroke-width="2" />
+
+    <path d="M100,40 C60,100 60,200 65,260 L135,260 C140,200 140,100 100,40 Z" fill="url(#bodyGrad)" stroke="#fff" stroke-width="3" />
+
+    <circle cx="100" cy="145" r="25" fill="#fff" />
+    <circle cx="100" cy="145" r="20" fill="url(#windowGrad)" />
+    <path d="M90,135 Q100,125 110,135" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+
+    <path d="M100,40 C88,70 112,70 100,40 Z" fill="#FFCC70" />
+
+    <path d="M80,80 Q70,160 75,230" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.2" />
+  </g>
+</svg>

@@ -1,20 +1,24 @@
 // Subtraction Game Component - Disney/Astro Bot Style
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { GameSettings, GameState } from '../types/index';
 import { ProblemGenerator } from '../utils/problemGenerator';
 import SoundManager, { SoundType } from '../utils/soundManager';
+import RocketProgress from '../components/RocketProgress';
+import Confetti from '../components/Confetti';
 
 interface SubtractionGameProps {
   gameSettings: GameSettings;
   onBack: () => void;
   onToggleSound: () => void;
+  onProgressUpdate?: (completed: number) => void;
 }
 
 const SubtractionGame: React.FC<SubtractionGameProps> = ({
   gameSettings,
   onBack,
-  onToggleSound
+  onToggleSound,
+  onProgressUpdate
 }) => {
   const soundManager = SoundManager.getInstance();
 
@@ -34,10 +38,21 @@ const SubtractionGame: React.FC<SubtractionGameProps> = ({
   const [feedback, setFeedback] = useState<string>('');
   const [feedbackType, setFeedbackType] = useState<'success' | 'error' | ''>('');
   const [showNextButton, setShowNextButton] = useState<boolean>(false);
+  const [confettiTrigger, setConfettiTrigger] = useState<number>(0);
+  const checkAnswerRef = useRef(() => {});
 
   // Generate first problem on mount
   useEffect(() => {
     generateNewProblem();
+  }, []);
+
+  // Enter key submits answer
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') checkAnswerRef.current();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
   }, []);
 
   const generateNewProblem = () => {
@@ -78,18 +93,30 @@ const SubtractionGame: React.FC<SubtractionGameProps> = ({
       // Correct answer!
       await soundManager.playSound(SoundType.CORRECT_ANSWER);
 
+      const newTotal = gameState.totalProblems + 1;
       setGameState(prev => ({
         ...prev,
         score: prev.score + 1,
-        totalProblems: prev.totalProblems + 1
+        totalProblems: newTotal
       }));
+
+      if (onProgressUpdate) {
+        onProgressUpdate(Math.min(5, newTotal));
+      }
 
       setFeedback(gameSettings.language === 'en' ?
         '🎉 Outstanding! Perfect subtraction!' :
         '🎉 מעולה! חיסור מושלם!'
       );
       setFeedbackType('success');
-      setShowNextButton(true);
+      
+      // Auto-advance to next problem after delay
+      setTimeout(() => {
+        generateNewProblem();
+        setFeedback('');
+        setFeedbackType('');
+        setShowNextButton(false);
+      }, 2000); // 2 second delay
 
     } else {
       // Wrong answer
@@ -117,15 +144,18 @@ const SubtractionGame: React.FC<SubtractionGameProps> = ({
           `💡 התשובה הנכונה היא ${correctAnswer}. ענית ${playerAnswer}. המשך להתאמן!`
         );
         setFeedbackType('error');
-        setShowNextButton(true);
+        
+        // Auto-advance to next problem after delay (even for wrong answers)
+        setTimeout(() => {
+          generateNewProblem();
+          setFeedback('');
+          setFeedbackType('');
+          setShowNextButton(false);
+        }, 2500); // 2.5 second delay for wrong answers
       }
     }
   };
-
-  const handleNextProblem = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    generateNewProblem();
-  };
+  checkAnswerRef.current = checkAnswer;
 
   const handleBackClick = async () => {
     await soundManager.playSound(SoundType.BUTTON_CLICK);
@@ -175,66 +205,120 @@ const SubtractionGame: React.FC<SubtractionGameProps> = ({
   };
 
   return (
-    <div className="game-background" style={{
+    <div className="main-background" style={{
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem'
+      position: 'relative',
+      backgroundImage: 'url(/assets/rocket/rocket_b.jpeg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
     }}>
-      {/* Header Controls */}
       <div style={{
         position: 'absolute',
-        top: '2rem',
-        left: '2rem',
-        right: '2rem',
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(102, 126, 234, 0.4)',
+        zIndex: 0
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '1.5rem',
+        left: '1.5rem',
+        right: '1.5rem',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex: 20
       }}>
         <button
           onClick={handleBackClick}
-          className="back-button"
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '50px',
+            padding: '10px 20px',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            fontWeight: '600'
+          }}
         >
-          🔙 {gameSettings.language === 'en' ? 'Back to Menu' : 'חזור לתפריט'}
+          🔙 {gameSettings.language === 'en' ? 'Back' : 'חזור'}
         </button>
-
         <button
           onClick={handleSoundToggle}
-          className={`sound-toggle-button ${!gameSettings.soundEnabled ? 'sound-off' : ''}`}
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '50px',
+            padding: '10px 20px',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            fontWeight: '600',
+            opacity: gameSettings.soundEnabled ? 1 : 0.8
+          }}
         >
           {gameSettings.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
         </button>
       </div>
-
-      {/* Game Content */}
-      <div style={{
-        maxWidth: '800px',
-        width: '100%',
-        textAlign: 'center'
-      }}>
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: '2rem', paddingTop: '5rem', maxWidth: '800px' }}>
         {/* Title */}
         <h1 className="game-title" style={{ marginBottom: '1rem' }}>
           ➖ {gameSettings.language === 'en' ? 'Subtraction Practice' : 'תרגול חיסור'}
         </h1>
 
-        {/* Score */}
+        {/* Score and Rocket Progress */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.9)',
-          borderRadius: '20px',
-          padding: '1rem',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          gap: '2rem',
           marginBottom: '2rem',
-          border: '2px solid rgba(102, 126, 234, 0.3)'
+          flexWrap: 'wrap'
         }}>
-          <span style={{
-            fontSize: '1.25rem',
-            fontWeight: '700',
-            color: '#2c3e50'
+          {/* Score Display */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.9)',
+            borderRadius: '20px',
+            padding: '1rem 2rem',
+            border: '2px solid rgba(102, 126, 234, 0.3)',
+            minWidth: '200px'
           }}>
-            {gameSettings.language === 'en' ? 'Score:' : 'ניקוד:'} {gameState.score}/{gameState.totalProblems}
-          </span>
+            <span style={{
+              fontSize: '1.25rem',
+              fontWeight: '700',
+              color: '#2c3e50'
+            }}>
+              {gameSettings.language === 'en' ? 'Score:' : 'ניקוד:'} {gameState.score}/{gameState.totalProblems}
+            </span>
+          </div>
+
+          {/* Rocket Progress */}
+          <RocketProgress 
+            score={gameState.score} 
+            maxScore={50}
+            useSVG={true}
+            onMilestone={(milestone) => {
+              setConfettiTrigger(milestone);
+            }}
+          />
         </div>
+
+        {/* Confetti for Milestones */}
+        <Confetti trigger={confettiTrigger} />
 
         {/* Problem */}
         {renderProblem()}
@@ -279,37 +363,6 @@ const SubtractionGame: React.FC<SubtractionGameProps> = ({
             {feedback}
           </div>
         )}
-
-        {/* Action Buttons */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '1rem'
-        }}>
-          {!showNextButton ? (
-            <button
-              onClick={checkAnswer}
-              className="submit-button"
-              style={{
-                fontSize: '1.25rem',
-                padding: '15px 30px'
-              }}
-            >
-              ✓ {gameSettings.language === 'en' ? 'Submit Answer' : 'שלח תשובה'}
-            </button>
-          ) : (
-            <button
-              onClick={handleNextProblem}
-              className="next-button"
-              style={{
-                fontSize: '1.25rem',
-                padding: '15px 30px'
-              }}
-            >
-              → {gameSettings.language === 'en' ? 'Next Problem' : 'בעיה הבאה'}
-            </button>
-          )}
-        </div>
 
         {/* Grade 3 Note */}
         {gameSettings.grade === 3 && (

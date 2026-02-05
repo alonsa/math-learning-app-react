@@ -1,6 +1,6 @@
 // English Letter Game Component - Disney/Astro Bot Style
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { GameSettings, GameState } from '../types/index';
 import SoundManager, { SoundType } from '../utils/soundManager';
 
@@ -8,6 +8,7 @@ interface EnglishLetterGameProps {
   gameSettings: GameSettings;
   onBack: () => void;
   onToggleSound: () => void;
+  onProgressUpdate?: (completed: number) => void;
 }
 
 interface LetterProblem {
@@ -20,7 +21,8 @@ interface LetterProblem {
 const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
   gameSettings,
   onBack,
-  onToggleSound
+  onToggleSound,
+  onProgressUpdate
 }) => {
   const soundManager = SoundManager.getInstance();
 
@@ -59,6 +61,16 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
   const [feedback, setFeedback] = useState<string>('');
   const [feedbackType, setFeedbackType] = useState<'success' | 'error' | ''>('');
   const [showNextButton, setShowNextButton] = useState<boolean>(false);
+  const checkAnswerRef = useRef(() => {});
+
+  // Enter key submits answer (when in test mode)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !showNextButton) checkAnswerRef.current();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [showNextButton]);
 
   // Letter sets for different grade levels
   const getLetterSet = () => {
@@ -187,18 +199,30 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
       // Correct answer!
       await soundManager.playSound(SoundType.CORRECT_ANSWER);
 
+      const newTotal = gameState.totalProblems + 1;
       setGameState(prev => ({
         ...prev,
         score: prev.score + 1,
-        totalProblems: prev.totalProblems + 1
+        totalProblems: newTotal
       }));
+
+      if (onProgressUpdate) {
+        onProgressUpdate(Math.min(5, newTotal));
+      }
 
       setFeedback(gameSettings.language === 'en' ?
         '🎉 Amazing! Perfect match!' :
         '🎉 מדהים! התאמה מושלמת!'
       );
       setFeedbackType('success');
-      setShowNextButton(true);
+      
+      // Auto-advance to next problem after delay
+      setTimeout(() => {
+        generateNewProblem();
+        setFeedback('');
+        setFeedbackType('');
+        setShowNextButton(false);
+      }, 2000); // 2 second delay
 
     } else {
       // Wrong answer
@@ -216,37 +240,50 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
         // Second attempt - show correct answer
         await soundManager.playSound(SoundType.WRONG_ANSWER);
 
+        const newTotal = gameState.totalProblems + 1;
         setGameState(prev => ({
           ...prev,
-          totalProblems: prev.totalProblems + 1
+          totalProblems: newTotal
         }));
+
+        if (onProgressUpdate) {
+          onProgressUpdate(Math.min(5, newTotal));
+        }
 
         setFeedback(gameSettings.language === 'en' ?
           `💡 The correct answer is ${correctAnswer}. You chose ${selectedAnswer}. Keep practicing!` :
           `💡 התשובה הנכונה היא ${correctAnswer}. בחרת ${selectedAnswer}. המשך להתאמן!`
         );
         setFeedbackType('error');
-        setShowNextButton(true);
+        
+        // Auto-advance to next problem after delay (even for wrong answers)
+        setTimeout(() => {
+          generateNewProblem();
+          setFeedback('');
+          setFeedbackType('');
+          setShowNextButton(false);
+        }, 2500); // 2.5 second delay for wrong answers
       }
     }
   };
+  checkAnswerRef.current = checkAnswer;
 
   const handleOptionClick = async (option: string) => {
+    // Prevent double-clicking
+    if (selectedAnswer === option) return;
+    
     await soundManager.playSound(SoundType.BUTTON_CLICK);
     setSelectedAnswer(option);
 
     // Play letter sound ONLY for case conversion tests (upper/lowercase) in answer boxes
     // NOT for sound identification tests
+    // Use setTimeout to avoid playing sound immediately on click (prevent double sounds)
     if (currentLetterProblem && (currentLetterProblem.type === 'uppercase' || currentLetterProblem.type === 'lowercase')) {
-      soundManager.playLetterSound(option);
-      console.log(`🔊 Playing answer letter sound: ${option}`);
+      setTimeout(() => {
+        soundManager.playLetterSound(option);
+      }, 100);
     }
     // For 'sound' type, do NOT play sound when clicking answer boxes
-  };
-
-  const handleNextProblem = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    await generateNewProblem();
   };
 
   const handleBackClick = async () => {
@@ -393,48 +430,79 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
   };
 
   return (
-    <div className="game-background" style={{
+    <div className="main-background" style={{
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem'
+      position: 'relative',
+      backgroundImage: 'url(/assets/rocket/rocket_b.jpeg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
     }}>
-      {/* Header Controls */}
       <div style={{
         position: 'absolute',
-        top: '2rem',
-        left: '2rem',
-        right: '2rem',
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(102, 126, 234, 0.4)',
+        zIndex: 0
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '1.5rem',
+        left: '1.5rem',
+        right: '1.5rem',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex: 20
       }}>
         <button
           onClick={handleBackClick}
-          className="back-button"
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '50px',
+            padding: '10px 20px',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            fontWeight: '600'
+          }}
         >
-          🔙 {testMode === null ? 
-            (gameSettings.language === 'en' ? 'Back to Menu' : 'חזור לתפריט') :
+          🔙 {testMode === null ?
+            (gameSettings.language === 'en' ? 'Back' : 'חזור') :
             (gameSettings.language === 'en' ? 'Back to Test Modes' : 'חזור למצבי בדיקה')
           }
         </button>
-
         <button
           onClick={handleSoundToggle}
-          className={`sound-toggle-button ${!gameSettings.soundEnabled ? 'sound-off' : ''}`}
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '50px',
+            padding: '10px 20px',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            fontWeight: '600',
+            opacity: gameSettings.soundEnabled ? 1 : 0.8
+          }}
         >
           {gameSettings.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
         </button>
       </div>
-
-      {/* Game Content */}
-      <div style={{
-        maxWidth: '800px',
-        width: '100%',
-        textAlign: 'center'
-      }}>
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: '2rem', paddingTop: '5rem', maxWidth: '800px' }}>
         {/* Title */}
         <h1 className="game-title" style={{ marginBottom: '1rem' }}>
           🔤 {gameSettings.language === 'en' ? 'English Letters' : 'אותיות באנגלית'}
@@ -556,41 +624,6 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
             animation: 'celebrate 0.6s ease-out'
           }}>
             {feedback}
-          </div>
-        )}
-
-        {/* Action Buttons - Only show when in a test mode */}
-        {testMode !== null && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1rem'
-          }}>
-            {!showNextButton ? (
-              <button
-                onClick={checkAnswer}
-                className="submit-button"
-                disabled={!selectedAnswer}
-                style={{
-                  fontSize: '1.25rem',
-                  padding: '15px 30px',
-                  opacity: selectedAnswer ? 1 : 0.5
-                }}
-              >
-                ✓ {gameSettings.language === 'en' ? 'Submit Answer' : 'שלח תשובה'}
-              </button>
-            ) : (
-              <button
-                onClick={handleNextProblem}
-                className="next-button"
-                style={{
-                  fontSize: '1.25rem',
-                  padding: '15px 30px'
-                }}
-              >
-                → {gameSettings.language === 'en' ? 'Next Letter' : 'אות הבאה'}
-              </button>
-            )}
           </div>
         )}
 

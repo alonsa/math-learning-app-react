@@ -11,12 +11,13 @@ import SubtractionGame from './games/SubtractionGame';
 import MultiplicationGame from './games/MultiplicationGame';
 import DivisionGame from './games/DivisionGame';
 import EnglishLetterGame from './games/EnglishLetterGame';
+import ProgressMapScreen from './components/ProgressMapScreen';
 
 // Import utilities
 import SoundManager from './utils/soundManager';
-import type {GameSettings} from './types/index';
+import type {GameSettings, ProgressState} from './types/index';
 
-type AppScreen = 'grade-selection' | 'main-menu' | 'addition' | 'subtraction' | 'multiplication' | 'division' | 'english-letters';
+type AppScreen = 'grade-selection' | 'main-menu' | 'addition' | 'subtraction' | 'multiplication' | 'division' | 'english-letters' | 'progress-map';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('grade-selection');
@@ -25,6 +26,18 @@ function App() {
     grade: 1,
     language: 'en'
   });
+  
+  // Progress tracking - 5 questions per topic
+  const [progress, setProgress] = useState<ProgressState>({
+    addition: 0,
+    subtraction: 0,
+    multiplication: 0,
+    division: 0,
+    englishLetters: 0
+  });
+
+  // When user entered a game from the progress map (journey mode), return to map on back/completion
+  const [cameFromProgressMap, setCameFromProgressMap] = useState(false);
 
   // Initialize sound manager
   useEffect(() => {
@@ -76,6 +89,8 @@ function App() {
             onGameSelect={setCurrentScreen}
             onBackToGradeSelection={handleBackToGradeSelection}
             onToggleSound={toggleSound}
+            onLanguageChange={(language) => setGameSettings(prev => ({ ...prev, language }))}
+            onProgressMap={() => setCurrentScreen('progress-map')}
           />
         );
 
@@ -83,8 +98,16 @@ function App() {
         return (
           <AdditionGame
             gameSettings={gameSettings}
-            onBack={handleBackToMenu}
+            onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onProgressUpdate={(completed) => {
+              setProgress(prev => ({ ...prev, addition: completed }));
+              if (completed >= 5) {
+                setTimeout(() => {
+                  setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'main-menu');
+                }, 2000);
+              }
+            }}
           />
         );
 
@@ -92,8 +115,16 @@ function App() {
         return (
           <SubtractionGame
             gameSettings={gameSettings}
-            onBack={handleBackToMenu}
+            onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onProgressUpdate={(completed) => {
+              setProgress(prev => ({ ...prev, subtraction: completed }));
+              if (completed >= 5) {
+                setTimeout(() => {
+                  setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'main-menu');
+                }, 2000);
+              }
+            }}
           />
         );
 
@@ -101,8 +132,16 @@ function App() {
         return (
           <MultiplicationGame
             gameSettings={gameSettings}
-            onBack={handleBackToMenu}
+            onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onProgressUpdate={(completed) => {
+              setProgress(prev => ({ ...prev, multiplication: completed }));
+              if (completed >= 5) {
+                setTimeout(() => {
+                  setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'main-menu');
+                }, 2000);
+              }
+            }}
           />
         );
 
@@ -110,8 +149,16 @@ function App() {
         return (
           <DivisionGame
             gameSettings={gameSettings}
-            onBack={handleBackToMenu}
+            onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onProgressUpdate={(completed) => {
+              setProgress(prev => ({ ...prev, division: completed }));
+              if (completed >= 5) {
+                setTimeout(() => {
+                  setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'main-menu');
+                }, 2000);
+              }
+            }}
           />
         );
 
@@ -119,8 +166,42 @@ function App() {
         return (
           <EnglishLetterGame
             gameSettings={gameSettings}
-            onBack={handleBackToGradeSelection}
+            onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToGradeSelection}
             onToggleSound={toggleSound}
+            onProgressUpdate={(completed) => {
+              setProgress(prev => ({ ...prev, englishLetters: completed }));
+              if (completed >= 5) {
+                setTimeout(() => {
+                  setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'grade-selection');
+                }, 2000);
+              }
+            }}
+          />
+        );
+
+      case 'progress-map':
+        return (
+          <ProgressMapScreen
+            progress={progress}
+            gameSettings={gameSettings}
+            onBack={() => {
+              setCameFromProgressMap(false);
+              setCurrentScreen('main-menu');
+            }}
+            onTopicSelect={(topicId) => {
+              const topicMap: Record<string, AppScreen> = {
+                'addition': 'addition',
+                'subtraction': 'subtraction',
+                'multiplication': 'multiplication',
+                'division': 'division',
+                'englishLetters': 'english-letters'
+              };
+              const screen = topicMap[topicId];
+              if (screen) {
+                setCameFromProgressMap(true);
+                setCurrentScreen(screen);
+              }
+            }}
           />
         );
 
