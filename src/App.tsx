@@ -38,6 +38,8 @@ function App() {
 
   // When user entered a game from the progress map (journey mode), return to map on back/completion
   const [cameFromProgressMap, setCameFromProgressMap] = useState(false);
+  // When opening English from map: which mode to start with (english_1 → case, english_2 → sound)
+  const [englishInitialMode, setEnglishInitialMode] = useState<'case' | 'sound' | null>(null);
 
   // Initialize sound manager
   useEffect(() => {
@@ -166,12 +168,17 @@ function App() {
         return (
           <EnglishLetterGame
             gameSettings={gameSettings}
-            onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToGradeSelection}
+            initialMode={englishInitialMode}
+            onBack={() => {
+              setEnglishInitialMode(null);
+              setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'grade-selection');
+            }}
             onToggleSound={toggleSound}
             onProgressUpdate={(completed) => {
               setProgress(prev => ({ ...prev, englishLetters: completed }));
               if (completed >= 5) {
                 setTimeout(() => {
+                  setEnglishInitialMode(null);
                   setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'grade-selection');
                 }, 2000);
               }
@@ -194,11 +201,16 @@ function App() {
                 'subtraction': 'subtraction',
                 'multiplication': 'multiplication',
                 'division': 'division',
-                'englishLetters': 'english-letters'
+                'englishLetters': 'english-letters',
+                'english_1': 'english-letters',
+                'english_2': 'english-letters'
               };
               const screen = topicMap[topicId];
               if (screen) {
                 setCameFromProgressMap(true);
+                if (topicId === 'english_1') setEnglishInitialMode('case');
+                else if (topicId === 'english_2') setEnglishInitialMode('sound');
+                else setEnglishInitialMode(null);
                 setCurrentScreen(screen);
               }
             }}

@@ -5,13 +5,18 @@ interface ProgressMapProps {
   progress: ProgressState;
   gameSettings: GameSettings;
   onTopicSelect?: (topicId: string) => void;
+  isMobile?: boolean;
 }
 
 const ProgressMap: React.FC<ProgressMapProps> = ({
   progress,
   gameSettings,
-  onTopicSelect
+  onTopicSelect,
+  isMobile = false
 }) => {
+  const stationSize = isMobile ? 65 : 90;
+  const badgeSize = isMobile ? 22 : 30;
+  const iconFontSize = isMobile ? '1.4rem' : '2rem';
   // הקואורדינטות הסופיות והמדויקות כפי שחילצת מהלוג
   const PATH_NODES = [
     { x: 19, y: 80 }, { x: 38, y: 88 }, { x: 62, y: 88 }, { x: 84, y: 77 }, { x: 47, y: 59 },
@@ -88,7 +93,7 @@ const ProgressMap: React.FC<ProgressMapProps> = ({
         return (
           <div
             key={topic.id}
-            onClick={() => !isLocked && onTopicSelect?.(topic.originalId)}
+            onClick={() => !isLocked && onTopicSelect?.(topic.id)}
             style={{
               position: 'absolute',
               left: `${topic.position.x}%`, top: `${topic.position.y}%`,
@@ -100,7 +105,7 @@ const ProgressMap: React.FC<ProgressMapProps> = ({
               transition: 'all 0.3s ease'
             }}
           >
-            <div style={{ position: 'relative', width: '90px', height: '90px' }}>
+            <div style={{ position: 'relative', width: `${stationSize}px`, height: `${stationSize}px` }}>
               <img
                 src="/assets/journey/station.png"
                 style={{ width: '100%', opacity: isLocked ? 0.7 : 1 }}
@@ -108,12 +113,18 @@ const ProgressMap: React.FC<ProgressMapProps> = ({
               />
 
               <span style={{
-                position: 'absolute', top: '46%', left: '50%',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
                 transform: 'translate(-50%, -50%)',
-                fontSize: '2rem',
+                fontSize: iconFontSize,
                 color: '#1a4a4a',
                 fontWeight: '900',
-                opacity: isLocked ? 0.5 : 1
+                opacity: isLocked ? 0.5 : 1,
+                lineHeight: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}>
                 {topic.icon}
               </span>
@@ -121,7 +132,7 @@ const ProgressMap: React.FC<ProgressMapProps> = ({
                 <span style={{
                   position: 'absolute', top: '40%', left: '50%',
                   transform: 'translate(-50%, -50%)',
-                  fontSize: '1.5rem',
+                  fontSize: isMobile ? '1.1rem' : '1.5rem',
                   zIndex: 6
                 }}>
                   🔒
@@ -130,7 +141,7 @@ const ProgressMap: React.FC<ProgressMapProps> = ({
 
               <div style={{
                 position: 'absolute', top: '0', right: '0',
-                width: '30px', height: '30px', borderRadius: '50%',
+                width: `${badgeSize}px`, height: `${badgeSize}px`, borderRadius: '50%',
                 background: isCompleted ? '#FFD700' : isLocked ? '#555' : '#4CAF50',
                 border: '2px solid white', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', color: 'white', fontWeight: 'bold'

@@ -6,6 +6,7 @@ import SoundManager, { SoundType } from '../utils/soundManager';
 
 interface EnglishLetterGameProps {
   gameSettings: GameSettings;
+  initialMode?: 'case' | 'sound' | null;
   onBack: () => void;
   onToggleSound: () => void;
   onProgressUpdate?: (completed: number) => void;
@@ -20,6 +21,7 @@ interface LetterProblem {
 
 const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
   gameSettings,
+  initialMode = null,
   onBack,
   onToggleSound,
   onProgressUpdate
@@ -40,9 +42,9 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [testMode, setTestMode] = useState<'case' | 'sound' | null>(null); // null = mode selection screen
 
-  // Reset test mode when component mounts (when entering the game)
+  // Reset when component mounts; use initialMode when coming from progress map (english_1 → case, english_2 → sound)
   useEffect(() => {
-    setTestMode(null);
+    setTestMode(initialMode ?? null);
     setCurrentLetterProblem(null);
     setSelectedAnswer('');
     setFeedback('');
@@ -55,7 +57,7 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
       attemptCount: 0,
       isGameActive: true
     });
-  }, []);
+  }, [initialMode]);
 
   // UI state
   const [feedback, setFeedback] = useState<string>('');
@@ -216,13 +218,13 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
       );
       setFeedbackType('success');
       
-      // Auto-advance to next problem after delay
+      // Auto-advance to next problem after delay (2.5s to let child see success)
       setTimeout(() => {
         generateNewProblem();
         setFeedback('');
         setFeedbackType('');
         setShowNextButton(false);
-      }, 2000); // 2 second delay
+      }, 2500);
 
     } else {
       // Wrong answer
@@ -269,21 +271,19 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
   checkAnswerRef.current = checkAnswer;
 
   const handleOptionClick = async (option: string) => {
-    // Prevent double-clicking
+    // מניעת שינוי בחירה לאחר שכבר התקבל פידבק של הצלחה
+    if (feedbackType === 'success') return;
     if (selectedAnswer === option) return;
-    
+
     await soundManager.playSound(SoundType.BUTTON_CLICK);
     setSelectedAnswer(option);
 
-    // Play letter sound ONLY for case conversion tests (upper/lowercase) in answer boxes
-    // NOT for sound identification tests
-    // Use setTimeout to avoid playing sound immediately on click (prevent double sounds)
+    // השמעת צליל האות רק במצבי התאמה (לא במצב זיהוי צליל)
     if (currentLetterProblem && (currentLetterProblem.type === 'uppercase' || currentLetterProblem.type === 'lowercase')) {
       setTimeout(() => {
         soundManager.playLetterSound(option);
       }, 100);
     }
-    // For 'sound' type, do NOT play sound when clicking answer boxes
   };
 
   const handleBackClick = async () => {
@@ -614,6 +614,31 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
 
             {/* Options */}
             {renderOptions()}
+
+            {/* כפתור אישור - מופיע רק כשנבחרה אות ואין עדיין פידבק חיובי */}
+            {testMode !== null && selectedAnswer && feedbackType !== 'success' && (
+              <button
+                onClick={() => checkAnswerRef.current()}
+                style={{
+                  marginTop: '1rem',
+                  padding: '12px 40px',
+                  fontSize: '1.5rem',
+                  fontWeight: '800',
+                  background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(76, 175, 80, 0.4)',
+                  animation: 'pulseActive 2s infinite',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+              >
+                {gameSettings.language === 'en' ? 'Confirm' : 'אישור'}
+              </button>
+            )}
           </>
         )}
 

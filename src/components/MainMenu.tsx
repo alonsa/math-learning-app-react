@@ -77,17 +77,31 @@ const MainMenu: React.FC<MainMenuProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          {/* Back Button */}
+          {/* Back Button - Glassmorphism */}
           <button
             onClick={handleBackClick}
-            className="back-button"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem'
+              gap: '0.6rem',
+              background: 'rgba(255, 255, 255, 0.12)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '50px',
+              padding: '10px 20px',
+              color: 'white',
+              cursor: 'pointer',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              fontWeight: '700',
+              transition: 'all 0.3s ease',
+              fontSize: '1rem'
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'; }}
           >
-            🔙 {gameSettings.language === 'en' ? 'Change Grade' : 'החלף כיתה'}
+            <span style={{ fontSize: '1.2rem' }}>🔙</span>
+            <span>{gameSettings.language === 'en' ? 'Change Grade' : 'החלף כיתה'}</span>
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -134,12 +148,15 @@ const MainMenu: React.FC<MainMenuProps> = ({
           </div>
         </div>
 
-        {/* Main Content - padding so title/subtitle sit below header buttons */}
+        {/* Main Content - scrollable so Grade 3 options (Multiplication, Division) are always reachable */}
         <div style={{
           textAlign: 'center',
           maxWidth: '600px',
           width: '100%',
-          paddingTop: '5rem'
+          paddingTop: '5rem',
+          paddingBottom: '2rem',
+          maxHeight: 'calc(100vh - 2rem)',
+          overflowY: 'auto'
         }}>
           {/* Title */}
           <h1 className="welcome-title" style={{ marginBottom: '1rem' }}>
