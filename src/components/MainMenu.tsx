@@ -3,6 +3,7 @@
 import React from 'react';
 import type { GameSettings } from '../types/index';
 import SoundManager, { SoundType } from '../utils/soundManager';
+import GameHeaderControls from './GameHeaderControls';
 
 type AppScreen = 'grade-selection' | 'main-menu' | 'addition' | 'subtraction' | 'multiplication' | 'division';
 
@@ -28,16 +29,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
   const handleGameClick = async (screen: AppScreen) => {
     await soundManager.playSound(SoundType.BUTTON_CLICK);
     onGameSelect(screen);
-  };
-
-  const handleSoundToggle = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    onToggleSound();
-  };
-
-  const handleBackClick = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    onBackToGradeSelection();
   };
 
   return (
@@ -67,86 +58,15 @@ const MainMenu: React.FC<MainMenuProps> = ({
       
       {/* Content with higher z-index */}
       <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
-        {/* Header Controls */}
-        <div style={{
-          position: 'absolute',
-          top: '2rem',
-          left: '2rem',
-          right: '2rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          {/* Back Button - Glassmorphism */}
-          <button
-            onClick={handleBackClick}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.6rem',
-              background: 'rgba(255, 255, 255, 0.12)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              borderRadius: '50px',
-              padding: '10px 20px',
-              color: 'white',
-              cursor: 'pointer',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-              fontWeight: '700',
-              transition: 'all 0.3s ease',
-              fontSize: '1rem'
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'; }}
-          >
-            <span style={{ fontSize: '1.2rem' }}>🔙</span>
-            <span>{gameSettings.language === 'en' ? 'Change Grade' : 'החלף כיתה'}</span>
-          </button>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            {/* Language */}
-            {onLanguageChange && (
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  onClick={async () => {
-                    await soundManager.playSound(SoundType.BUTTON_CLICK);
-                    onLanguageChange('en');
-                  }}
-                  className="sound-toggle-button"
-                  style={{
-                    padding: '8px 12px',
-                    fontSize: '0.875rem',
-                    opacity: gameSettings.language === 'en' ? 1 : 0.7
-                  }}
-                >
-                  🇺🇸 EN
-                </button>
-                <button
-                  onClick={async () => {
-                    await soundManager.playSound(SoundType.BUTTON_CLICK);
-                    onLanguageChange('he');
-                  }}
-                  className="sound-toggle-button"
-                  style={{
-                    padding: '8px 12px',
-                    fontSize: '0.875rem',
-                    opacity: gameSettings.language === 'he' ? 1 : 0.7
-                  }}
-                >
-                  🇮🇱 עברית
-                </button>
-              </div>
-            )}
-            {/* Sound Toggle */}
-            <button
-              onClick={handleSoundToggle}
-              className={`sound-toggle-button ${!gameSettings.soundEnabled ? 'sound-off' : ''}`}
-            >
-              {gameSettings.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
-            </button>
-          </div>
-        </div>
+        {/* Header Controls - same glass style as exercise pages */}
+        <GameHeaderControls
+          gameSettings={gameSettings}
+          backLabel={gameSettings.language === 'en' ? 'Change Grade' : 'החלף כיתה'}
+          onBack={onBackToGradeSelection}
+          onToggleSound={onToggleSound}
+          onLanguageChange={onLanguageChange}
+          showLanguage={true}
+        />
 
         {/* Main Content - scrollable so Grade 3 options (Multiplication, Division) are always reachable */}
         <div style={{

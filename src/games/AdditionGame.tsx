@@ -6,11 +6,13 @@ import { ProblemGenerator } from '../utils/problemGenerator';
 import SoundManager, { SoundType } from '../utils/soundManager';
 import RocketProgress from '../components/RocketProgress';
 import Confetti from '../components/Confetti';
+import GameHeaderControls from '../components/GameHeaderControls';
 
 interface AdditionGameProps {
   gameSettings: GameSettings;
   onBack: () => void;
   onToggleSound: () => void;
+  onLanguageChange?: (language: 'en' | 'he') => void;
   onProgressUpdate?: (completed: number) => void; // Callback when questions completed
 }
 
@@ -18,6 +20,7 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
   gameSettings,
   onBack,
   onToggleSound,
+  onLanguageChange,
   onProgressUpdate
 }) => {
   const soundManager = SoundManager.getInstance();
@@ -228,16 +231,6 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
   };
   checkAnswerRef.current = checkAnswer;
 
-  const handleBackClick = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    onBack();
-  };
-
-  const handleSoundToggle = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    onToggleSound();
-  };
-
   const renderProblem = () => {
     if (!gameState.currentProblem) return null;
 
@@ -247,12 +240,7 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
       // Horizontal format for Grade 1
       return (
         <div className="problem-container" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#2c3e50',
-            marginBottom: '1rem'
-          }}>
+          <div className="vertical-math-problem" style={{ marginBottom: '1rem' }}>
             {firstNumber} + {secondNumber} = ?
           </div>
         </div>
@@ -279,12 +267,11 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
     if (gameSettings.grade === 1) {
       // Single input for Grade 1
       return (
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div className="answer-panel" style={{ textAlign: 'center' }}>
           <label style={{
             display: 'block',
             fontSize: '1.25rem',
             fontWeight: '600',
-            color: '#2c3e50',
             marginBottom: '1rem'
           }}>
             {gameSettings.language === 'en' ? 'Your answer:' : 'התשובה שלך:'}
@@ -307,12 +294,11 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
     } else {
       // Digit-by-digit input for Grade 3
       return (
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div className="answer-panel" style={{ textAlign: 'center' }}>
           <label style={{
             display: 'block',
             fontSize: '1.25rem',
             fontWeight: '600',
-            color: '#2c3e50',
             marginBottom: '1rem'
           }}>
             {gameSettings.language === 'en' ?
@@ -407,58 +393,14 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
       }} />
 
       {/* Header Controls - כפתורי זכוכית */}
-      <div style={{
-        position: 'absolute',
-        top: '1.5rem',
-        left: '1.5rem',
-        right: '1.5rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        zIndex: 20
-      }}>
-        <button
-          onClick={handleBackClick}
-          style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '50px',
-            padding: '10px 20px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            fontWeight: '600'
-          }}
-        >
-          🔙 {gameSettings.language === 'en' ? 'Back' : 'חזור'}
-        </button>
-        <button
-          onClick={handleSoundToggle}
-          style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '50px',
-            padding: '10px 20px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            fontWeight: '600',
-            opacity: gameSettings.soundEnabled ? 1 : 0.8
-          }}
-        >
-          {gameSettings.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
-        </button>
-      </div>
+      <GameHeaderControls
+        gameSettings={gameSettings}
+        backLabel={gameSettings.language === 'en' ? 'Back' : 'חזור'}
+        onBack={onBack}
+        onToggleSound={onToggleSound}
+        onLanguageChange={onLanguageChange}
+        showLanguage={true}
+      />
 
       {/* תוכן השיעור */}
       <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: '2rem', paddingTop: '5rem', maxWidth: '800px' }}>
@@ -477,20 +419,8 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
           flexWrap: 'wrap'
         }}>
           {/* Score Display */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.9)',
-            borderRadius: '20px',
-            padding: '1rem 2rem',
-            border: '2px solid rgba(102, 126, 234, 0.3)',
-            minWidth: '200px'
-          }}>
-            <span style={{
-              fontSize: '1.25rem',
-              fontWeight: '700',
-              color: '#2c3e50'
-            }}>
-              {gameSettings.language === 'en' ? 'Score:' : 'ניקוד:'} {gameState.score}/{gameState.totalProblems}
-            </span>
+          <div className="score-display">
+            {gameSettings.language === 'en' ? 'Score:' : 'ניקוד:'} {gameState.score}/{gameState.totalProblems}
           </div>
 
           {/* Rocket Progress - SVG Animation */}

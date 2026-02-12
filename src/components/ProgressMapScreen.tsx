@@ -55,26 +55,14 @@ const ProgressMapScreen: React.FC<ProgressMapScreenProps> = ({
         }}
       >
         <button
+          type="button"
           onClick={handleBackClick}
+          className="glass-header-btn"
           style={{
             position: 'absolute',
             top: isMobile ? '1rem' : '1.5rem',
             left: isMobile ? '1rem' : '1.5rem',
-            zIndex: 30,
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '50px',
-            padding: isMobile ? '8px 16px' : '10px 16px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            fontWeight: '600',
-            transition: 'all 0.2s'
+            zIndex: 30
           }}
         >
           <span style={{ fontSize: '1.2rem' }}>🔙</span>

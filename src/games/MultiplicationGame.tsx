@@ -7,11 +7,13 @@ import { ProblemGenerator } from '../utils/problemGenerator';
 import SoundManager, { SoundType } from '../utils/soundManager';
 import RocketProgress from '../components/RocketProgress';
 import Confetti from '../components/Confetti';
+import GameHeaderControls from '../components/GameHeaderControls';
 
 interface MultiplicationGameProps {
   gameSettings: GameSettings;
   onBack: () => void;
   onToggleSound: () => void;
+  onLanguageChange?: (language: 'en' | 'he') => void;
   onProgressUpdate?: (completed: number) => void;
 }
 
@@ -19,6 +21,7 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
   gameSettings,
   onBack,
   onToggleSound,
+  onLanguageChange,
   onProgressUpdate
 }) => {
   const soundManager = SoundManager.getInstance();
@@ -158,16 +161,6 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
   };
   checkAnswerRef.current = checkAnswer;
 
-  const handleBackClick = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    onBack();
-  };
-
-  const handleSoundToggle = async () => {
-    await soundManager.playSound(SoundType.BUTTON_CLICK);
-    onToggleSound();
-  };
-
   const renderProblem = () => {
     if (!gameState.currentProblem) return null;
 
@@ -205,58 +198,14 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
         background: 'rgba(102, 126, 234, 0.4)',
         zIndex: 0
       }} />
-      <div style={{
-        position: 'absolute',
-        top: '1.5rem',
-        left: '1.5rem',
-        right: '1.5rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        zIndex: 20
-      }}>
-        <button
-          onClick={handleBackClick}
-          style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '50px',
-            padding: '10px 20px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            fontWeight: '600'
-          }}
-        >
-          🔙 {gameSettings.language === 'en' ? 'Back' : 'חזור'}
-        </button>
-        <button
-          onClick={handleSoundToggle}
-          style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '50px',
-            padding: '10px 20px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            fontWeight: '600',
-            opacity: gameSettings.soundEnabled ? 1 : 0.8
-          }}
-        >
-          {gameSettings.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
-        </button>
-      </div>
+      <GameHeaderControls
+        gameSettings={gameSettings}
+        backLabel={gameSettings.language === 'en' ? 'Back' : 'חזור'}
+        onBack={onBack}
+        onToggleSound={onToggleSound}
+        onLanguageChange={onLanguageChange}
+        showLanguage={true}
+      />
       <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: '2rem', paddingTop: '5rem', maxWidth: '800px' }}>
         {/* Title */}
         <h1 className="game-title" style={{ marginBottom: '1rem' }}>
@@ -273,20 +222,8 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
           flexWrap: 'wrap'
         }}>
           {/* Score Display */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.9)',
-            borderRadius: '20px',
-            padding: '1rem 2rem',
-            border: '2px solid rgba(102, 126, 234, 0.3)',
-            minWidth: '200px'
-          }}>
-            <span style={{
-              fontSize: '1.25rem',
-              fontWeight: '700',
-              color: '#2c3e50'
-            }}>
-              {gameSettings.language === 'en' ? 'Score:' : 'ניקוד:'} {gameState.score}/{gameState.totalProblems}
-            </span>
+          <div className="score-display">
+            {gameSettings.language === 'en' ? 'Score:' : 'ניקוד:'} {gameState.score}/{gameState.totalProblems}
           </div>
 
           {/* Rocket Progress */}
@@ -307,12 +244,11 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
         {renderProblem()}
 
         {/* Input */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div className="answer-panel" style={{ textAlign: 'center' }}>
           <label style={{
             display: 'block',
             fontSize: '1.25rem',
             fontWeight: '600',
-            color: '#2c3e50',
             marginBottom: '1rem'
           }}>
             {gameSettings.language === 'en' ? 'Your answer:' : 'התשובה שלך:'}

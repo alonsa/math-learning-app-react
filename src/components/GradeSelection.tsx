@@ -76,18 +76,13 @@ const GradeSelection: React.FC<GradeSelectionProps> = ({
           }
         </h1>
 
-        {/* Language Selection - visible in main content */}
+        {/* Language Selection - same glass style as rest of app */}
         <div style={{
           display: 'inline-flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.5rem',
-          marginBottom: '2rem',
-          padding: '1rem 1.5rem',
-          background: 'rgba(255, 255, 255, 0.25)',
-          borderRadius: '16px',
-          border: '2px solid rgba(255, 255, 255, 0.5)',
-          backdropFilter: 'blur(8px)'
+          gap: '0.75rem',
+          marginBottom: '2rem'
         }}>
           <span style={{
             color: 'white',
@@ -97,42 +92,18 @@ const GradeSelection: React.FC<GradeSelectionProps> = ({
           }}>
             {gameSettings.language === 'en' ? 'Language:' : 'שפה:'}
           </span>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
+              type="button"
               onClick={() => handleLanguageChange('en')}
-              className={`language-button ${gameSettings.language === 'en' ? 'active' : ''}`}
-              style={{
-                background: gameSettings.language === 'en' ?
-                  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' :
-                  'rgba(255, 255, 255, 0.3)',
-                color: 'white',
-                border: '2px solid rgba(255, 255, 255, 0.6)',
-                borderRadius: '10px',
-                padding: '10px 18px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-              }}
+              className={`glass-header-btn ${gameSettings.language === 'en' ? 'glass-header-btn--active' : ''}`}
             >
-              🇺🇸 English
+              🇺🇸 EN
             </button>
             <button
+              type="button"
               onClick={() => handleLanguageChange('he')}
-              className={`language-button ${gameSettings.language === 'he' ? 'active' : ''}`}
-              style={{
-                background: gameSettings.language === 'he' ?
-                  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' :
-                  'rgba(255, 255, 255, 0.3)',
-                color: 'white',
-                border: '2px solid rgba(255, 255, 255, 0.6)',
-                borderRadius: '10px',
-                padding: '10px 18px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-              }}
+              className={`glass-header-btn ${gameSettings.language === 'he' ? 'glass-header-btn--active' : ''}`}
             >
               🇮🇱 עברית
             </button>

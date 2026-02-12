@@ -102,6 +102,7 @@ function App() {
             gameSettings={gameSettings}
             onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onLanguageChange={(language) => setGameSettings(prev => ({ ...prev, language }))}
             onProgressUpdate={(completed) => {
               setProgress(prev => ({ ...prev, addition: completed }));
               if (completed >= 5) {
@@ -119,6 +120,7 @@ function App() {
             gameSettings={gameSettings}
             onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onLanguageChange={(language) => setGameSettings(prev => ({ ...prev, language }))}
             onProgressUpdate={(completed) => {
               setProgress(prev => ({ ...prev, subtraction: completed }));
               if (completed >= 5) {
@@ -136,6 +138,7 @@ function App() {
             gameSettings={gameSettings}
             onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onLanguageChange={(language) => setGameSettings(prev => ({ ...prev, language }))}
             onProgressUpdate={(completed) => {
               setProgress(prev => ({ ...prev, multiplication: completed }));
               if (completed >= 5) {
@@ -153,6 +156,7 @@ function App() {
             gameSettings={gameSettings}
             onBack={cameFromProgressMap ? () => setCurrentScreen('progress-map') : handleBackToMenu}
             onToggleSound={toggleSound}
+            onLanguageChange={(language) => setGameSettings(prev => ({ ...prev, language }))}
             onProgressUpdate={(completed) => {
               setProgress(prev => ({ ...prev, division: completed }));
               if (completed >= 5) {
@@ -174,6 +178,7 @@ function App() {
               setCurrentScreen(cameFromProgressMap ? 'progress-map' : 'grade-selection');
             }}
             onToggleSound={toggleSound}
+            onLanguageChange={(language) => setGameSettings(prev => ({ ...prev, language }))}
             onProgressUpdate={(completed) => {
               setProgress(prev => ({ ...prev, englishLetters: completed }));
               if (completed >= 5) {
