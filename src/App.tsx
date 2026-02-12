@@ -12,12 +12,13 @@ import MultiplicationGame from './games/MultiplicationGame';
 import DivisionGame from './games/DivisionGame';
 import EnglishLetterGame from './games/EnglishLetterGame';
 import ProgressMapScreen from './components/ProgressMapScreen';
+import ArcadeGame from './games/ArcadeGame';
 
 // Import utilities
 import SoundManager from './utils/soundManager';
 import type {GameSettings, ProgressState} from './types/index';
 
-type AppScreen = 'grade-selection' | 'main-menu' | 'addition' | 'subtraction' | 'multiplication' | 'division' | 'english-letters' | 'progress-map';
+type AppScreen = 'grade-selection' | 'main-menu' | 'addition' | 'subtraction' | 'multiplication' | 'division' | 'english-letters' | 'progress-map' | 'arcade';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('grade-selection');
@@ -188,6 +189,16 @@ function App() {
                 }, 2000);
               }
             }}
+          />
+        );
+
+      case 'arcade':
+        return (
+          <ArcadeGame
+            gameSettings={gameSettings}
+            onBack={handleBackToMenu}
+            onToggleSound={toggleSound}
+            onLanguageChange={(language) => setGameSettings(prev => ({ ...prev, language }))}
           />
         );
 

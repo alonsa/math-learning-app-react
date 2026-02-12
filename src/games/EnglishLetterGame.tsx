@@ -274,8 +274,12 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
     await soundManager.playSound(SoundType.BUTTON_CLICK);
     setSelectedAnswer(option);
 
-    // השמעת צליל האות רק במצבי התאמה (לא במצב זיהוי צליל)
-    if (currentLetterProblem && (currentLetterProblem.type === 'uppercase' || currentLetterProblem.type === 'lowercase')) {
+    // השמעת צליל האות רק במצב התאמה + כיתה א (כיתה ג: זיהוי אות גדולה/קטנה ללא השמעת האות)
+    if (
+      currentLetterProblem &&
+      (currentLetterProblem.type === 'uppercase' || currentLetterProblem.type === 'lowercase') &&
+      gameSettings.grade === 1
+    ) {
       setTimeout(() => {
         soundManager.playLetterSound(option);
       }, 100);

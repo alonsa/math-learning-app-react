@@ -5,7 +5,7 @@ import type { GameSettings } from '../types/index';
 import SoundManager, { SoundType } from '../utils/soundManager';
 import GameHeaderControls from './GameHeaderControls';
 
-type AppScreen = 'grade-selection' | 'main-menu' | 'addition' | 'subtraction' | 'multiplication' | 'division';
+type AppScreen = 'grade-selection' | 'main-menu' | 'addition' | 'subtraction' | 'multiplication' | 'division' | 'arcade';
 
 interface MainMenuProps {
   gameSettings: GameSettings;
@@ -176,6 +176,20 @@ const MainMenu: React.FC<MainMenuProps> = ({
               🗺️ {gameSettings.language === 'en' ? 'Start My Journey' : 'המסע שלי'}
             </button>
           )}
+
+          {/* Arcade (Space Runner) */}
+          <button
+            onClick={() => handleGameClick('arcade')}
+            className="menu-button division-button"
+            style={{
+              width: '350px',
+              height: '70px',
+              fontSize: '1.25rem',
+              marginTop: '1rem'
+            }}
+          >
+            🎮 {gameSettings.language === 'en' ? 'Arcade' : 'ארקדה'} (Space Runner)
+          </button>
 
           {/* Coming Soon - More Games */}
           <div style={{

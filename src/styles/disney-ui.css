@@ -342,6 +342,16 @@ body {
   100% { transform: scale(1.02) rotate(0deg); opacity: 1; }
 }
 
+/* Arcade: very subtle screen shake on wrong answer (PRD 3.4) */
+@keyframes arcadeShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+.arcade-shake {
+  animation: arcadeShake 0.2s ease-out;
+}
+
 /* ASTRO BOT STYLE ACTION BUTTONS */
 .submit-button, .next-button {
   font-family: var(--font-main);
