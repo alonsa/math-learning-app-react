@@ -102,8 +102,7 @@ class SoundManager {
   private async loadLetterSounds() {
     console.log('🔤 Loading letter sounds...');
 
-    const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-                    'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'X', 'Y', 'Z'];
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
     const letterPromises = letters.map(async letter => {
       const audioBuffer = await this.loadAudioFile(`/sounds/end_letters/${letter}.wav`);

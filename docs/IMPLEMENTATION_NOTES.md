@@ -6,17 +6,7 @@
 
 ## סעיף 1: כניסה ל-English Letters מהתפריט הראשי (FR-E1)
 
-**PRD:** "From main menu or grade selection: user sees 'Choose a Test Mode'."
-
-**מצב נוכחי:** יש כפתור English Letters רק ב-Grade Selection. ב-Main Menu אין.
-
-**לעשות:**
-- [ ] להוסיף ב-`MainMenu.tsx` כפתור "English Letters" / "אותיות באנגלית" (אחרי Division / לפני "Start My Journey" או אחרי).
-- [ ] ב-`App.tsx`: לתמוך בנווט ל-`english-letters` גם מהתפריט (כבר יש `setCurrentScreen('english-letters')` – חסר רק כפתור בתפריט).
-- [ ] טיפ: ה-MainMenu מקבל `onGameSelect` שמקבל `AppScreen` – הטיפוס לא כולל `'english-letters'`. צריך להרחיב את הטיפוס ב-MainMenu ולהוסיף את הכפתור.
-
-**הערות לדיון:**
-- מיקום הכפתור: מעדיפים אחרי Division (כיתה ג') או אחרי חיסור (לפני כפל)? או תמיד אחרי כל משחקי החשבון, לפני "Start My Journey"?
+**החלטה:** לא נדרש – נשאר כניסה מ-Grade Selection בלבד.
 
 ---
 
@@ -55,23 +45,7 @@
 
 ## סעיף 4: צלילי האותיות Q ו-W (FR-E6)
 
-**PRD:** "Letter pronunciation: A–Z sounds available (e.g. from public/sounds/end_letters/)."
-
-**מצב נוכחי:** חסרים `Q.wav` ו-`W.wav` בתיקייה; ב-soundManager נטענות רק 24 אותיות.
-
-**אפשרויות:**
-- **א:** להוסיף קבצי Q.wav ו-W.wav (צריך מקור לצלילים – TTS או הקלטה).
-- **ב:** להגביל את משחק האותיות רק ל-24 האותיות שיש להן צליל (למשל להשתמש ב-`soundManager.getAvailableLetters()` ב-`getLetterSet()` או ב-generateLetterProblem).
-
-**לעשות (אם בוחרים א'):**
-- [ ] להשיג/ליצור Q.wav, W.wav ב-`public/sounds/end_letters/`.
-- [ ] ב-`soundManager.ts`: להוסיף 'Q','W' לרשימת האותיות שנטענות.
-
-**לעשות (אם בוחרים ב'):**
-- [ ] ב-`EnglishLetterGame.tsx`: ב-`getLetterSet()` להחזיר רק אותיות שיש להן צליל (למשל `soundManager.getAvailableLetters()` או רשימה קבועה של 24 אותיות בלי Q,W), כדי שבמצב Sound לא יופיעו Q/W בלי צליל.
-
-**הערות לדיון:**
-- יש לך קבצי צליל ל-Q ו-W או מעדיפים להגביל ל-24 אותיות בינתיים?
+**בוצע:** קבצי `Q.wav` ו-`W.wav` הועתקו ל-`public/sounds/end_letters/`. ב-`soundManager.ts` נטענות כעת כל 26 האותיות A–Z. משחק האותיות משתמש שוב ב-A–Z מלא.
 
 ---
 

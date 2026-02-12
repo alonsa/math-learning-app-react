@@ -77,14 +77,7 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
     return () => document.removeEventListener('keydown', onKey);
   }, [showNextButton]);
 
-  // Letter sets for different grade levels
-  const getLetterSet = () => {
-    if (gameSettings.grade === 1) {
-      return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    } else {
-      return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    }
-  };
+  const getLetterSet = () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
   const generateLetterProblem = (): LetterProblem => {
     const letters = getLetterSet();
