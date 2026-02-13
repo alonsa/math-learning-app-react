@@ -453,7 +453,7 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
           ? (gameSettings.language === 'en' ? 'Back' : 'חזור')
           : (gameSettings.language === 'en' ? 'Back to Test Modes' : 'חזור למצבי בדיקה')}
         onBack={handleBackClick}
-        onToggleSound={onToggleSound}
+        onToggleSound={handleSoundToggle}
         onLanguageChange={onLanguageChange}
         showLanguage={true}
       />
