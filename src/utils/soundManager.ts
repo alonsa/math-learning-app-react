@@ -69,7 +69,7 @@ class SoundManager {
       ...this.wrongSounds.map(file => this.loadAudioFile(`/sounds/${file}`)),
       // Other sounds
       this.loadAudioFile('/sounds/try_again.wav'),
-      this.loadAudioFile('/sounds/button-click.wav'),
+      this.loadAudioFile('/sounds/click_sound_effect.mp3'),
       this.loadAudioFile('/sounds/celebration.wav'),
       this.loadAudioFile('/sounds/arcade_background.wav')
     ];

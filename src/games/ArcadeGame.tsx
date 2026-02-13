@@ -1,6 +1,6 @@
-// Arcade (Space Runner) – 4 lanes, grade-based math, move to correct answer
-// Grade 1: addition & subtraction. Grade 3: multiplication & division.
-// PRD 3.4: keyboard Left/Right or A/D; mobile: on-screen ← → buttons; 2.5D track; subtle shake on wrong.
+// Arcade (Space Runner) – 4 lanes, mixed math + English by grade
+// Grade 1: single-digit add/sub + English letter case. Grade 3: + single-digit mult/div.
+// PRD 3.4: keyboard Left/Right or A/D; mobile: on-screen ← → buttons; 2.5D track.
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { GameSettings } from '../types/index';
@@ -14,21 +14,29 @@ const MAX_STRIKES = 5;
 const FALL_DURATION_BASE_MS = 3500;
 const FALL_DURATION_MIN_MS = 1800;
 const SPEED_INCREASE_PER_SCORE = 40;
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-function getWrongOptions(correct: number, grade: 1 | 3): number[] {
-  const wrong: number[] = [];
-  const used = new Set([correct]);
-  while (wrong.length < 3) {
-    const offset = Math.floor(Math.random() * 5) - 2; // -2 to +2
-    let candidate = correct + offset;
-    if (grade === 1) candidate = Math.max(0, Math.min(18, candidate));
-    else candidate = Math.max(1, Math.min(81, candidate));
-    if (!used.has(candidate)) {
-      used.add(candidate);
-      wrong.push(candidate);
-    }
+type ArcadeProblem =
+  | { type: 'math'; problem: MathProblem; options: number[]; correctLane: number }
+  | { type: 'letter'; shownLetter: string; caseType: 'uppercase' | 'lowercase'; options: string[]; correctLane: number };
+
+function getWrongMathOptions(correct: number, singleDigit: boolean): number[] {
+  const min = singleDigit ? 0 : 1;
+  const max = singleDigit ? 9 : 81;
+  const pool: number[] = [];
+  for (let n = min; n <= max; n++) {
+    if (n !== correct) pool.push(n);
   }
-  return wrong;
+  shuffle(pool);
+  return pool.slice(0, 3);
+}
+
+function getWrongLetterOptions(correctLetter: string): string[] {
+  const correctUpper = correctLetter.toUpperCase();
+  const isUpper = correctLetter === correctUpper;
+  const pool = (isUpper ? LETTERS : LETTERS.map((c) => c.toLowerCase())).filter((c) => c !== correctLetter);
+  shuffle(pool);
+  return pool.slice(0, 3);
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -38,6 +46,64 @@ function shuffle<T>(arr: T[]): T[] {
     [out[i], out[j]] = [out[j], out[i]];
   }
   return out;
+}
+
+function generateArcadeProblem(grade: 1 | 3): ArcadeProblem {
+  const r = Math.random();
+  if (grade === 1) {
+    if (r < 1 / 3) {
+      const problem = ProblemGenerator.generateAdditionProblem(1);
+      const wrong = getWrongMathOptions(problem.correctAnswer, true);
+      const options = shuffle([problem.correctAnswer, wrong[0], wrong[1], wrong[2]]);
+      return { type: 'math', problem, options, correctLane: options.indexOf(problem.correctAnswer) };
+    }
+    if (r < 2 / 3) {
+      const problem = ProblemGenerator.generateSubtractionProblem(1);
+      const wrong = getWrongMathOptions(problem.correctAnswer, true);
+      const options = shuffle([problem.correctAnswer, wrong[0], wrong[1], wrong[2]]);
+      return { type: 'math', problem, options, correctLane: options.indexOf(problem.correctAnswer) };
+    }
+    // Letter: uppercase/lowercase
+    const letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    const caseType = Math.random() < 0.5 ? 'uppercase' : 'lowercase';
+    const shownLetter = caseType === 'uppercase' ? letter : letter.toLowerCase();
+    const correctOption = caseType === 'uppercase' ? letter : letter.toLowerCase();
+    const wrong = getWrongLetterOptions(correctOption);
+    const options = shuffle([correctOption, wrong[0], wrong[1], wrong[2]]);
+    return { type: 'letter', shownLetter, caseType, options, correctLane: options.indexOf(correctOption) };
+  }
+  // Grade 3: add, sub (single-digit), mult, div, letter
+  if (r < 0.2) {
+    const problem = ProblemGenerator.generateAdditionProblem(1);
+    const wrong = getWrongMathOptions(problem.correctAnswer, true);
+    const options = shuffle([problem.correctAnswer, wrong[0], wrong[1], wrong[2]]);
+    return { type: 'math', problem, options, correctLane: options.indexOf(problem.correctAnswer) };
+  }
+  if (r < 0.4) {
+    const problem = ProblemGenerator.generateSubtractionProblem(1);
+    const wrong = getWrongMathOptions(problem.correctAnswer, true);
+    const options = shuffle([problem.correctAnswer, wrong[0], wrong[1], wrong[2]]);
+    return { type: 'math', problem, options, correctLane: options.indexOf(problem.correctAnswer) };
+  }
+  if (r < 0.6) {
+    const problem = ProblemGenerator.generateMultiplicationProblem(3);
+    const wrong = getWrongMathOptions(problem.correctAnswer, false);
+    const options = shuffle([problem.correctAnswer, wrong[0], wrong[1], wrong[2]]);
+    return { type: 'math', problem, options, correctLane: options.indexOf(problem.correctAnswer) };
+  }
+  if (r < 0.8) {
+    const problem = ProblemGenerator.generateDivisionProblem(3);
+    const wrong = getWrongMathOptions(problem.correctAnswer, false);
+    const options = shuffle([problem.correctAnswer, wrong[0], wrong[1], wrong[2]]);
+    return { type: 'math', problem, options, correctLane: options.indexOf(problem.correctAnswer) };
+  }
+  const letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+  const caseType = Math.random() < 0.5 ? 'uppercase' : 'lowercase';
+  const shownLetter = caseType === 'uppercase' ? letter : letter.toLowerCase();
+  const correctOption = caseType === 'uppercase' ? letter : letter.toLowerCase();
+  const wrong = getWrongLetterOptions(correctOption);
+  const options = shuffle([correctOption, wrong[0], wrong[1], wrong[2]]);
+  return { type: 'letter', shownLetter, caseType, options, correctLane: options.indexOf(correctOption) };
 }
 
 interface ArcadeGameProps {
@@ -54,11 +120,11 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
   onLanguageChange
 }) => {
   const soundManager = SoundManager.getInstance();
-  const [playerLane, setPlayerLane] = useState(2); // center of 4 lanes (0-3)
+  const [playerLane, setPlayerLane] = useState(2);
   const [score, setScore] = useState(0);
-  const [strikes, setStrikes] = useState(0); // 0–5, game over at 5
-  const [problem, setProblem] = useState<MathProblem | null>(null);
-  const [optionsByLane, setOptionsByLane] = useState<number[]>([0, 0, 0, 0]);
+  const [strikes, setStrikes] = useState(0);
+  const [problem, setProblem] = useState<ArcadeProblem | null>(null);
+  const [optionsByLane, setOptionsByLane] = useState<(number | string)[]>([0, 0, 0, 0]);
   const [correctLane, setCorrectLane] = useState(0);
   const [fallProgress, setFallProgress] = useState(0);
   const [shaking, setShaking] = useState(false);
@@ -66,36 +132,29 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
   const [gameOver, setGameOver] = useState(false);
   const fallStartRef = useRef<number>(0);
   const fallDurationRef = useRef(FALL_DURATION_BASE_MS);
+  const lastProgressUpdateRef = useRef<number>(0);
   const rafRef = useRef<number>(0);
   const strikesRef = useRef(0);
-
-  const generateProblem = useCallback((): MathProblem => {
-    const grade = gameSettings.grade;
-    if (grade === 1) {
-      return Math.random() < 0.5
-        ? ProblemGenerator.generateAdditionProblem(1)
-        : ProblemGenerator.generateSubtractionProblem(1);
-    }
-    return Math.random() < 0.5
-      ? ProblemGenerator.generateMultiplicationProblem(3)
-      : ProblemGenerator.generateDivisionProblem(3);
-  }, [gameSettings.grade]);
+  const playerLaneRef = useRef<number>(playerLane);
+  const startNextProblemRef = useRef<() => void>(() => {});
+  playerLaneRef.current = playerLane;
 
   const startNextProblem = useCallback(() => {
-    const p = generateProblem();
+    const p = generateArcadeProblem(gameSettings.grade);
     setProblem(p);
-    const wrong = getWrongOptions(p.correctAnswer, gameSettings.grade);
-    const options = shuffle([p.correctAnswer, wrong[0], wrong[1], wrong[2]]);
-    setOptionsByLane(options);
-    setCorrectLane(options.indexOf(p.correctAnswer));
+    setOptionsByLane(p.options);
+    setCorrectLane(p.correctLane);
     setFallProgress(0);
+    lastProgressUpdateRef.current = 0;
     fallStartRef.current = performance.now();
     const duration = Math.max(
       FALL_DURATION_MIN_MS,
       FALL_DURATION_BASE_MS - score * SPEED_INCREASE_PER_SCORE
     );
     fallDurationRef.current = duration;
-  }, [generateProblem, gameSettings.grade, score]);
+  }, [gameSettings.grade, score]);
+
+  startNextProblemRef.current = startNextProblem;
 
   // Arcade background music: start on mount, stop on unmount
   useEffect(() => {
@@ -109,12 +168,12 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
     return () => soundManager.stopArcadeBackgroundMusic();
   }, [soundManager]);
 
-  // Initial problem and fall animation (defer setState to avoid synchronous setState in effect)
+  // Initial problem only when game becomes active (not when score/startNextProblem changes)
   useEffect(() => {
     if (!gameActive) return;
-    const id = setTimeout(() => startNextProblem(), 0);
+    const id = setTimeout(() => startNextProblemRef.current(), 0);
     return () => clearTimeout(id);
-  }, [gameActive, startNextProblem]);
+  }, [gameActive]);
 
   useEffect(() => {
     if (!gameActive || problem === null) return;
@@ -122,10 +181,13 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
     const tick = (now: number) => {
       const elapsed = now - fallStartRef.current;
       const progress = Math.min(1, elapsed / fallDurationRef.current);
-      setFallProgress(progress);
+      if (progress - lastProgressUpdateRef.current >= 0.03 || progress >= 1) {
+        lastProgressUpdateRef.current = progress;
+        setFallProgress(progress);
+      }
 
       if (progress >= 1) {
-        const isCorrect = playerLane === correctLane;
+        const isCorrect = playerLaneRef.current === correctLane;
         if (isCorrect) {
           soundManager.playSound(SoundType.CORRECT_ANSWER);
           setScore((s) => s + 1);
@@ -150,7 +212,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [gameActive, problem, correctLane, playerLane, startNextProblem, soundManager]);
+  }, [gameActive, problem, correctLane, startNextProblem, soundManager]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -292,7 +354,11 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
         {/* Problem – fixed height row */}
         <div className={`problem-container ${shaking ? 'arcade-shake' : ''}`} style={{ marginBottom: '0.75rem', flexShrink: 0 }}>
           <div className="vertical-math-problem" style={{ marginBottom: 0 }}>
-            {problem.firstNumber} {opSymbol[problem.operation]} {problem.secondNumber} = ?
+            {problem.type === 'math'
+              ? `${problem.problem.firstNumber} ${opSymbol[problem.problem.operation]} ${problem.problem.secondNumber} = ?`
+              : problem.caseType === 'uppercase'
+                ? (gameSettings.language === 'en' ? `Find UPPERCASE for: ${problem.shownLetter}` : `מצא אות גדולה עבור: ${problem.shownLetter}`)
+                : (gameSettings.language === 'en' ? `Find lowercase for: ${problem.shownLetter}` : `מצא אות קטנה עבור: ${problem.shownLetter}`)}
           </div>
         </div>
 
