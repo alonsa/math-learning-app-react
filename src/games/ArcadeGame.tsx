@@ -302,7 +302,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
   }
 
   return (
-    <div className="main-background" style={{
+    <div className="main-background arcade-game" style={{
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
@@ -322,7 +322,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
         showLanguage
       />
 
-      <div style={{
+      <div className="arcade-game-content" style={{
         position: 'relative',
         zIndex: 1,
         flex: 1,
@@ -335,7 +335,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
         overflow: 'hidden'
       }}>
         {/* Row: Score + Strikes – no overlap */}
-        <div style={{
+        <div className="arcade-score-row" style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -463,7 +463,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
         </div>
 
         {/* Mobile: lane buttons – fixed at bottom, no overlap */}
-        <div style={{
+        <div className="arcade-lane-buttons" style={{
           display: 'flex',
           justifyContent: 'center',
           gap: '2rem',
@@ -488,8 +488,9 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
             →
           </button>
         </div>
-        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', textAlign: 'center', marginTop: '-0.5rem' }}>
-          {gameSettings.language === 'en' ? 'Arrow keys or A / D' : 'חצים או A / D'}
+        <p className="arcade-hint" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', textAlign: 'center', marginTop: '-0.5rem' }}>
+          <span className="arcade-hint-desktop">{gameSettings.language === 'en' ? 'Arrow keys or A / D' : 'חצים או A / D'}</span>
+          <span className="arcade-hint-mobile">{gameSettings.language === 'en' ? 'Swipe or tap ← →' : 'החלק או לחץ על ← →'}</span>
         </p>
       </div>
     </div>
