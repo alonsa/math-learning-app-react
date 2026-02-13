@@ -185,8 +185,7 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
   };
 
   return (
-    <div className="main-background" style={{
-      minHeight: '100vh',
+    <div className="main-background app-screen" style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -210,7 +209,7 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
         onLanguageChange={onLanguageChange}
         showLanguage={true}
       />
-      <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: '2rem', paddingTop: '5rem', maxWidth: '800px' }}>
+      <div className="app-screen-content" style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', maxWidth: '800px' }}>
         {/* Title */}
         <h1 className="game-title" style={{ marginBottom: '1rem' }}>
           ✖️ {gameSettings.language === 'en' ? 'Multiplication Practice' : 'תרגול כפל'}

@@ -377,8 +377,7 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
   };
 
   return (
-    <div className="main-background" style={{
-      minHeight: '100vh',
+    <div className="main-background app-screen" style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -407,7 +406,7 @@ const AdditionGame: React.FC<AdditionGameProps> = ({
       />
 
       {/* תוכן השיעור */}
-      <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: '2rem', paddingTop: '5rem', maxWidth: '800px' }}>
+      <div className="app-screen-content" style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', maxWidth: '800px' }}>
         {/* Title */}
         <h1 className="game-title" style={{ marginBottom: '1rem' }}>
           ➕ {gameSettings.language === 'en' ? 'Addition Practice' : 'תרגול חיבור'}

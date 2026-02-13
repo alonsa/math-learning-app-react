@@ -240,7 +240,9 @@ function App() {
 
   return (
     <div className="App">
-      {renderCurrentScreen()}
+      <div key={currentScreen} className="screen-transition">
+        {renderCurrentScreen()}
+      </div>
     </div>
   );
 }

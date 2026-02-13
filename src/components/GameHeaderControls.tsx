@@ -39,7 +39,7 @@ const GameHeaderControls: React.FC<GameHeaderControlsProps> = ({
   };
 
   return (
-    <div style={{
+    <div className="game-header-controls" style={{
       position: 'absolute',
       top: '1.5rem',
       left: '1.5rem',
@@ -47,14 +47,17 @@ const GameHeaderControls: React.FC<GameHeaderControlsProps> = ({
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      zIndex: 20
+      gap: '0.5rem',
+      zIndex: 20,
+      minWidth: 0,
+      maxWidth: '100%'
     }}>
-      <button type="button" onClick={handleBack} className="glass-header-btn">
+      <button type="button" onClick={handleBack} className="glass-header-btn" style={{ flexShrink: 0 }}>
         <span style={{ fontSize: '1.2rem' }}>🔙</span>
         <span>{backLabel}</span>
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0, flexShrink: 1 }}>
         {showLanguage && onLanguageChange && (
           <>
             <button
@@ -78,10 +81,11 @@ const GameHeaderControls: React.FC<GameHeaderControlsProps> = ({
         <button
           type="button"
           onClick={handleSound}
-          className="glass-header-btn"
+          className="glass-header-btn glass-header-sound"
           style={{ opacity: gameSettings.soundEnabled ? 1 : 0.85 }}
         >
-          {gameSettings.soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
+          <span className="glass-header-sound-icon">{gameSettings.soundEnabled ? '🔊' : '🔇'}</span>
+          <span className="glass-header-sound-label">{gameSettings.soundEnabled ? 'Sound ON' : 'Sound OFF'}</span>
         </button>
       </div>
     </div>

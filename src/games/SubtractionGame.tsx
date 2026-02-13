@@ -197,8 +197,7 @@ const SubtractionGame: React.FC<SubtractionGameProps> = ({
   };
 
   return (
-    <div className="main-background" style={{
-      minHeight: '100vh',
+    <div className="main-background app-screen" style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -222,7 +221,7 @@ const SubtractionGame: React.FC<SubtractionGameProps> = ({
         onLanguageChange={onLanguageChange}
         showLanguage={true}
       />
-      <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: '2rem', paddingTop: '5rem', maxWidth: '800px' }}>
+      <div className="app-screen-content" style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', maxWidth: '800px' }}>
         {/* Title */}
         <h1 className="game-title" style={{ marginBottom: '1rem' }}>
           ➖ {gameSettings.language === 'en' ? 'Subtraction Practice' : 'תרגול חיסור'}

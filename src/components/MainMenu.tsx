@@ -32,13 +32,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
   };
 
   return (
-    <div className="main-background" style={{
-      minHeight: '100vh',
+    <div className="main-background app-screen" style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '2rem',
       position: 'relative',
       backgroundImage: 'url(/assets/rocket/rocket_b.jpeg)',
       backgroundSize: 'cover',
@@ -69,13 +67,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
         />
 
         {/* Main Content - scrollable so Grade 3 options (Multiplication, Division) are always reachable */}
-        <div style={{
+        <div className="app-screen-content" style={{
           textAlign: 'center',
           maxWidth: '600px',
           width: '100%',
-          paddingTop: '5rem',
-          paddingBottom: '2rem',
-          maxHeight: 'calc(100vh - 2rem)',
+          maxHeight: 'calc(100dvh - 4rem)',
           overflowY: 'auto'
         }}>
           {/* Title */}

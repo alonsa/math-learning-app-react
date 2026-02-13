@@ -272,7 +272,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
 
   if (gameOver) {
     return (
-      <div className="main-background" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <div className="main-background app-screen" style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(102, 126, 234, 0.4)', zIndex: 0 }} />
         <GameHeaderControls gameSettings={gameSettings} backLabel={gameSettings.language === 'en' ? 'Back' : 'חזור'} onBack={onBack} onToggleSound={onToggleSound} onLanguageChange={onLanguageChange} showLanguage />
         <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
@@ -294,7 +294,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
 
   if (!gameActive || !problem) {
     return (
-      <div className="main-background" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="main-background app-screen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(102, 126, 234, 0.4)', zIndex: 0 }} />
         <GameHeaderControls gameSettings={gameSettings} backLabel={gameSettings.language === 'en' ? 'Back' : 'חזור'} onBack={onBack} onToggleSound={onToggleSound} onLanguageChange={onLanguageChange} showLanguage />
       </div>
@@ -302,8 +302,10 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
   }
 
   return (
-    <div className="main-background arcade-game" style={{
-      minHeight: '100vh',
+    <div className="main-background arcade-game app-screen" style={{
+      width: '100%',
+      maxWidth: '100vw',
+      overflowX: 'hidden',
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
@@ -332,6 +334,9 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
         paddingLeft: '1rem',
         paddingRight: '1rem',
         minHeight: 0,
+        minWidth: 0,
+        width: '100%',
+        maxWidth: '100%',
         overflow: 'hidden'
       }}>
         {/* Row: Score + Strikes – no overlap */}
@@ -339,20 +344,21 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '1rem',
+          gap: '0.5rem',
           marginBottom: '0.75rem',
-          flexShrink: 0
+          flexShrink: 0,
+          minWidth: 0
         }}>
-          <div className="score-display" style={{ margin: 0, flex: 1, maxWidth: '140px' }}>
+          <div className="score-display" style={{ margin: 0, flex: 1, minWidth: 0, maxWidth: '140px' }}>
             {gameSettings.language === 'en' ? 'Score:' : 'ניקוד:'} {score}
           </div>
-          <div className="score-display" style={{ margin: 0, flex: 1, maxWidth: '160px' }}>
+          <div className="score-display" style={{ margin: 0, flex: 1, minWidth: 0, maxWidth: '160px' }}>
             {gameSettings.language === 'en' ? 'Lives:' : 'פסילות:'} {MAX_STRIKES - strikes}/{MAX_STRIKES}
           </div>
         </div>
 
         {/* Problem – fixed height row */}
-        <div className={`problem-container ${shaking ? 'arcade-shake' : ''}`} style={{ marginBottom: '0.75rem', flexShrink: 0 }}>
+        <div className={`problem-container ${shaking ? 'arcade-shake' : ''}`} style={{ marginBottom: '0.75rem', flexShrink: 0, minWidth: 0, overflow: 'hidden' }}>
           <div className="vertical-math-problem" style={{ marginBottom: 0 }}>
             {problem.type === 'math'
               ? `${problem.problem.firstNumber} ${opSymbol[problem.problem.operation]} ${problem.problem.secondNumber} = ?`
@@ -370,9 +376,8 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <div style={{
+          <div className="arcade-track-inner" style={{
             flex: 1,
-            minHeight: '200px',
             position: 'relative',
             transformStyle: 'preserve-3d',
             transform: 'rotateX(8deg)',
@@ -469,7 +474,10 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
           gap: '2rem',
           marginTop: '0.75rem',
           paddingBottom: '1.5rem',
-          flexShrink: 0
+          flexShrink: 0,
+          width: '100%',
+          maxWidth: '100%',
+          minWidth: 0
         }}>
           <button
             type="button"

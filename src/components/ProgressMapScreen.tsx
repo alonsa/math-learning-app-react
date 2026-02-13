@@ -33,7 +33,7 @@ const ProgressMapScreen: React.FC<ProgressMapScreenProps> = ({
   };
 
   return (
-    <div style={{
+    <div className="app-screen app-screen-fullbleed" style={{
       position: 'fixed',
       inset: 0,
       width: '100vw',
@@ -57,13 +57,8 @@ const ProgressMapScreen: React.FC<ProgressMapScreenProps> = ({
         <button
           type="button"
           onClick={handleBackClick}
-          className="glass-header-btn"
-          style={{
-            position: 'absolute',
-            top: isMobile ? '1rem' : '1.5rem',
-            left: isMobile ? '1rem' : '1.5rem',
-            zIndex: 30
-          }}
+          className="glass-header-btn progress-map-back"
+          style={{ position: 'absolute', zIndex: 30 }}
         >
           <span style={{ fontSize: '1.2rem' }}>🔙</span>
           <span>{gameSettings.language === 'en' ? 'Back' : 'חזור'}</span>

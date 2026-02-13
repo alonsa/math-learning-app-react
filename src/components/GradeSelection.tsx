@@ -35,13 +35,11 @@ const GradeSelection: React.FC<GradeSelectionProps> = ({
   };
 
   return (
-    <div className="main-background" style={{
-      minHeight: '100vh',
+    <div className="main-background app-screen" style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '2rem',
       position: 'relative',
       backgroundImage: 'url(/assets/rocket/rocket_b.jpeg)',
       backgroundSize: 'cover',
@@ -62,11 +60,10 @@ const GradeSelection: React.FC<GradeSelectionProps> = ({
       {/* Content with higher z-index */}
       <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
       {/* Main Content */}
-      <div style={{
+      <div className="app-screen-content" style={{
         textAlign: 'center',
         maxWidth: '600px',
-        width: '100%',
-        paddingTop: '1rem'
+        width: '100%'
       }}>
         {/* Title */}
         <h1 className="welcome-title" style={{ marginBottom: '1.5rem' }}>

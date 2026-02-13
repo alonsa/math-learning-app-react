@@ -19,6 +19,26 @@
   /* Typography */
   --font-main: 'Nunito', 'SF Pro Display', 'Segoe UI', sans-serif;
   --font-title: 'Fredoka One', 'Nunito', sans-serif;
+
+  /* Dynamic layout – scales with viewport and orientation */
+  --app-padding: clamp(0.75rem, 3vw, 2rem);
+  --app-header-margin: clamp(0.75rem, 2.5vw, 1.5rem);
+  --app-content-padding-top: clamp(2rem, 8vh, 5rem);
+  --app-content-padding-bottom: clamp(1rem, 3vh, 2rem);
+  --app-title-font: clamp(1.5rem, 5vw, 3rem);
+  --app-subtitle-font: clamp(1rem, 2.5vw, 1.375rem);
+  --app-button-padding: clamp(10px, 2.5vw, 15px);
+  --app-gap: clamp(0.75rem, 2.5vw, 1.5rem);
+}
+
+/* Landscape / short viewport: compact layout for all screens */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --app-content-padding-top: 1.25rem;
+    --app-content-padding-bottom: 0.75rem;
+    --app-padding: 0.5rem;
+    --app-gap: 0.5rem;
+  }
 }
 
 body {
@@ -28,6 +48,42 @@ body {
   background: var(--astro-blue);
   overflow-x: hidden;
 }
+
+/* Smooth page transitions */
+.screen-transition {
+  min-height: 100%;
+  animation: screenFadeIn 0.35s ease-out forwards;
+}
+@keyframes screenFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Global app layout – dynamic padding and header */
+.app-screen {
+  padding: var(--app-padding) !important;
+  min-height: 100dvh;
+  box-sizing: border-box;
+}
+.app-screen.app-screen-fullbleed { padding: 0 !important; min-height: 100dvh; }
+.app-screen .game-header-controls {
+  left: var(--app-header-margin) !important;
+  right: var(--app-header-margin) !important;
+}
+.app-screen-content {
+  padding-top: var(--app-content-padding-top) !important;
+  padding-bottom: var(--app-content-padding-bottom) !important;
+  padding-left: var(--app-padding) !important;
+  padding-right: var(--app-padding) !important;
+  box-sizing: border-box;
+}
+.progress-map-back { top: var(--app-header-margin) !important; left: var(--app-header-margin) !important; }
 
 /* MAGICAL ANIMATED BACKGROUNDS */
 .main-background {
@@ -92,7 +148,7 @@ body {
 /* DISNEY-STYLE MAGICAL TITLES */
 .welcome-title {
   font-family: var(--font-title);
-  font-size: 3rem;
+  font-size: var(--app-title-font);
   font-weight: 800;
   background: var(--gold-shine);
   -webkit-background-clip: text;
@@ -106,7 +162,7 @@ body {
 
 .game-title {
   font-family: var(--font-title);
-  font-size: 2.25rem;
+  font-size: clamp(1.25rem, 4vw, 2.25rem);
   font-weight: 700;
   background: linear-gradient(135deg, #ffffff 0%, #f8f8ff 100%);
   -webkit-background-clip: text;
@@ -427,6 +483,16 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
+@media (max-width: 768px) {
+  .game-header-controls .glass-header-btn {
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
+  }
+  .game-header-controls .glass-header-btn span:first-child { font-size: 1rem !important; }
+  .game-header-controls .glass-header-sound .glass-header-sound-label { display: none; }
+  .game-header-controls .glass-header-sound { padding: 6px 10px !important; }
+}
+
 /* SOUND TOGGLE – legacy; prefer .glass-header-btn for header controls */
 .sound-toggle-button {
   background: rgba(255, 255, 255, 0.1);
@@ -453,41 +519,84 @@ body {
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-  .welcome-title { font-size: 2.5rem; }
-  .game-title { font-size: 2rem; }
   .menu-button { font-size: 1rem; padding: 12px 20px; }
   .digit-field { width: 50px; height: 50px; font-size: 1.5rem; }
 }
 
-/* Arcade – mobile layout */
+/* Arcade – dynamic layout by viewport size and orientation */
+.arcade-game {
+  min-height: 100dvh;
+  --arcade-padding-x: clamp(0.5rem, 3vw, 1rem);
+  --arcade-padding-top: clamp(2.5rem, 6vh, 5rem);
+  --arcade-score-font: clamp(0.85rem, 2.2vw, 1rem);
+  --arcade-problem-font: clamp(1.1rem, 3.5vw, 1.5rem);
+  --arcade-lane-gap: clamp(1rem, 4vw, 2rem);
+  --arcade-lane-btn-pad: clamp(0.6rem, 2vw, 1rem);
+  --arcade-track-min-h: clamp(160px, 35vh, 280px);
+}
+.arcade-game-content {
+  padding-left: var(--arcade-padding-x) !important;
+  padding-right: var(--arcade-padding-x) !important;
+  padding-top: var(--arcade-padding-top) !important;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+}
+.arcade-game .arcade-score-row .score-display {
+  font-size: var(--arcade-score-font) !important;
+  padding: 0.35rem 0.5rem !important;
+}
+.arcade-game .problem-container .vertical-math-problem {
+  font-size: var(--arcade-problem-font) !important;
+  line-height: 1.3;
+}
+.arcade-game .arcade-lane-buttons {
+  gap: var(--arcade-lane-gap) !important;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+}
+.arcade-game .arcade-lane-buttons button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--arcade-lane-btn-pad) !important;
+  font-size: clamp(1.2rem, 3vw, 1.5rem) !important;
+}
+.arcade-game .arcade-hint { font-size: clamp(0.7rem, 1.8vw, 0.85rem) !important; }
+.arcade-game .arcade-game-content .score-display { min-width: 0 !important; }
+.arcade-game .arcade-track-inner { min-height: var(--arcade-track-min-h); }
+
+/* Hint: show touch hint on narrow or touch device (dynamic by width) */
 .arcade-hint-desktop { display: inline; }
 .arcade-hint-mobile { display: none; }
 @media (max-width: 768px) {
   .arcade-hint-desktop { display: none; }
   .arcade-hint-mobile { display: inline; }
-  .arcade-game.main-background {
-    min-height: 100dvh;
+}
+@media (max-height: 500px) {
+  .arcade-hint-desktop { display: none; }
+  .arcade-hint-mobile { display: inline; }
+}
+
+/* Landscape / short viewport: compact vertical layout */
+@media (orientation: landscape) and (max-height: 500px) {
+  .arcade-game {
+    --arcade-padding-top: 1.25rem;
+    --arcade-track-min-h: 120px;
   }
-  .arcade-game-content {
-    padding-top: 2.5rem !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-    padding-bottom: env(safe-area-inset-bottom, 0);
+  .arcade-game .arcade-score-row .score-display { padding: 0.25rem 0.4rem !important; }
+  .arcade-game .problem-container { margin-bottom: 0.4rem !important; }
+  .arcade-game .arcade-lane-buttons { margin-top: 0.35rem !important; }
+}
+
+/* Header: shrink on narrow viewport (dynamic) */
+@media (max-width: 768px) {
+  .game-header-controls .glass-header-btn {
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
   }
-  .arcade-game .arcade-score-row .score-display { font-size: 0.95rem; padding: 0.4rem 0.6rem !important; }
-  .arcade-game .problem-container .vertical-math-problem { font-size: 1.15rem; line-height: 1.3; }
-  .arcade-game .arcade-lane-buttons {
-    gap: 1.25rem !important;
-    margin-top: 0.5rem !important;
-    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
-  }
-  .arcade-game .arcade-lane-buttons button {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0.75rem 1.25rem !important;
-    font-size: 1.35rem !important;
-  }
-  .arcade-game .arcade-hint { font-size: 0.75rem; margin-top: -0.25rem !important; }
+  .game-header-controls .glass-header-btn span:first-child { font-size: 1rem !important; }
+  .game-header-controls .glass-header-sound .glass-header-sound-label { display: none; }
+  .game-header-controls .glass-header-sound { padding: 6px 10px !important; }
+}
+@media (max-width: 480px) {
+  .game-header-controls .glass-header-btn { padding: 5px 8px !important; font-size: 0.7rem !important; }
 }
 
 /* LETTER BUTTONS (for English game) */
