@@ -1,7 +1,7 @@
 // Multiplication Game Component - Disney/Astro Bot Style
 // Grade 3: One-digit multiplication (1-9 × 1-9)
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { GameSettings, GameState } from '../types/index';
 import { ProblemGenerator } from '../utils/problemGenerator';
 import SoundManager, { SoundType } from '../utils/soundManager';
@@ -45,21 +45,7 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
   const [confettiTrigger, setConfettiTrigger] = useState<number>(0);
   const checkAnswerRef = useRef(() => {});
 
-  // Generate first problem on mount
-  useEffect(() => {
-    generateNewProblem();
-  }, []);
-
-  // Enter key submits answer
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') checkAnswerRef.current();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, []);
-
-  const generateNewProblem = () => {
+  const generateNewProblem = useCallback(() => {
     const newProblem = ProblemGenerator.generateMultiplicationProblem(gameSettings.grade);
 
     setGameState(prev => ({
@@ -81,7 +67,22 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
       const input = document.querySelector('input[type="text"]') as HTMLInputElement;
       input?.focus();
     }, 100);
-  };
+  }, [gameSettings.grade]);
+
+  // Generate first problem on mount (defer to satisfy react-hooks/set-state-in-effect)
+  useEffect(() => {
+    const id = setTimeout(() => generateNewProblem(), 0);
+    return () => clearTimeout(id);
+  }, [generateNewProblem]);
+
+  // Enter key submits answer
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') checkAnswerRef.current();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   const checkAnswer = async () => {
     if (!gameState.currentProblem) return;
@@ -159,7 +160,10 @@ const MultiplicationGame: React.FC<MultiplicationGameProps> = ({
       }
     }
   };
-  checkAnswerRef.current = checkAnswer;
+
+  useEffect(() => {
+    checkAnswerRef.current = checkAnswer;
+  }, [checkAnswer]);
 
   const renderProblem = () => {
     if (!gameState.currentProblem) return null;

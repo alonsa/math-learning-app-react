@@ -17,6 +17,7 @@ class SoundManager {
   private audioContext: AudioContext | null = null;
   private sounds: Map<string, AudioBuffer> = new Map();
   private letterSounds: Map<string, AudioBuffer> = new Map();
+  private arcadeBackgroundSource: AudioBufferSourceNode | null = null;
 
   // User's custom success sounds for variety
   private successSounds = ['aluf.wav', 'Hitlahta.wav', 'you_made_it.wav'];
@@ -36,7 +37,8 @@ class SoundManager {
 
   private async initializeAudioContext() {
     try {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const Ctx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      this.audioContext = Ctx ? new Ctx() : null;
     } catch (error) {
       console.warn('Web Audio API not supported:', error);
     }
@@ -68,13 +70,14 @@ class SoundManager {
       // Other sounds
       this.loadAudioFile('/sounds/try_again.wav'),
       this.loadAudioFile('/sounds/button-click.wav'),
-      this.loadAudioFile('/sounds/celebration.wav')
+      this.loadAudioFile('/sounds/celebration.wav'),
+      this.loadAudioFile('/sounds/arcade_background.wav')
     ];
 
     const [
       aluf, hitlahta, youMadeIt,
       close, no,
-      tryAgain, buttonClick, celebration
+      tryAgain, buttonClick, celebration, arcadeBackground
     ] = await Promise.all(soundPromises);
 
     // Store success sounds
@@ -90,6 +93,7 @@ class SoundManager {
     if (tryAgain) this.sounds.set('try-again', tryAgain);
     if (buttonClick) this.sounds.set('button-click', buttonClick);
     if (celebration) this.sounds.set('celebration', celebration);
+    if (arcadeBackground) this.sounds.set('arcade-background', arcadeBackground);
 
     console.log('✅ Success sounds:', this.successSounds);
     console.log('❌ Wrong sounds:', this.wrongSounds);
@@ -227,8 +231,43 @@ class SoundManager {
     return letters[Math.floor(Math.random() * letters.length)];
   }
 
+  public startArcadeBackgroundMusic(): void {
+    if (!this.soundEnabled || !this.audioContext) return;
+    this.stopArcadeBackgroundMusic();
+    const buffer = this.sounds.get('arcade-background');
+    if (!buffer) return;
+    try {
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+      const source = this.audioContext.createBufferSource();
+      const gainNode = this.audioContext.createGain();
+      source.buffer = buffer;
+      source.loop = true;
+      gainNode.gain.value = 0.35;
+      source.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+      source.start(0);
+      this.arcadeBackgroundSource = source;
+    } catch (e) {
+      console.warn('Arcade background music failed to start:', e);
+    }
+  }
+
+  public stopArcadeBackgroundMusic(): void {
+    if (this.arcadeBackgroundSource) {
+      try {
+        this.arcadeBackgroundSource.stop();
+      } catch {
+        // already stopped
+      }
+      this.arcadeBackgroundSource = null;
+    }
+  }
+
   public setSoundEnabled(enabled: boolean) {
     this.soundEnabled = enabled;
+    if (!enabled) this.stopArcadeBackgroundMusic();
     console.log(`🔊 Sound ${enabled ? 'enabled' : 'disabled'}`);
   }
 

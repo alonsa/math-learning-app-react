@@ -84,7 +84,6 @@ export class ProblemGenerator {
   static generateDivisionProblem(grade: 1 | 3): MathProblem {
     let divisor: number;
     let quotient: number;
-    let dividend: number;
 
     if (grade === 1) {
       // Grade 1: Simple division (results 1-5)
@@ -96,7 +95,7 @@ export class ProblemGenerator {
       divisor = Math.floor(Math.random() * 9) + 2; // 2-10 (to ensure reasonable dividends)
     }
 
-    dividend = quotient * divisor; // Ensure exact division (integer result)
+    const dividend = quotient * divisor; // Ensure exact division (integer result)
 
     return {
       firstNumber: dividend,

@@ -264,7 +264,10 @@ const EnglishLetterGame: React.FC<EnglishLetterGameProps> = ({
       }
     }
   };
-  checkAnswerRef.current = checkAnswer;
+
+  useEffect(() => {
+    checkAnswerRef.current = checkAnswer;
+  }, [checkAnswer]);
 
   const handleOptionClick = async (option: string) => {
     // מניעת שינוי בחירה לאחר שכבר התקבל פידבק של הצלחה

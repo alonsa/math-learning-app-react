@@ -2,36 +2,50 @@
 
 import React, { useEffect, useState } from 'react';
 
+interface Particle {
+  id: number;
+  left: number;
+  delay: number;
+  duration: number;
+  color: string;
+}
+
 interface ConfettiProps {
   trigger: number; // Trigger confetti when this changes
   duration?: number; // Duration in ms
 }
 
+const COLORS = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FF9FF3', '#54A0FF'];
+
 const Confetti: React.FC<ConfettiProps> = ({ trigger, duration = 3000 }) => {
   const [isActive, setIsActive] = useState(false);
+  const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
     if (trigger > 0) {
-      setIsActive(true);
+      const id = setTimeout(() => {
+        setParticles(
+          Array.from({ length: 50 }, (_, i) => ({
+            id: i,
+            left: Math.random() * 100,
+            delay: Math.random() * 0.5,
+            duration: 1 + Math.random() * 2,
+            color: COLORS[Math.floor(Math.random() * 6)]
+          }))
+        );
+        setIsActive(true);
+      }, 0);
       const timer = setTimeout(() => {
         setIsActive(false);
       }, duration);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(id);
+        clearTimeout(timer);
+      };
     }
   }, [trigger, duration]);
 
   if (!isActive) return null;
-
-  // Create multiple confetti particles
-  const particles = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 0.5,
-    duration: 1 + Math.random() * 2,
-    color: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FF9FF3', '#54A0FF'][
-      Math.floor(Math.random() * 6)
-    ]
-  }));
 
   return (
     <div

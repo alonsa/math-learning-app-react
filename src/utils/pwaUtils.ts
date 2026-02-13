@@ -3,8 +3,9 @@
 export class PWAUtils {
   // Check if app is running as installed PWA
   static isRunningAsPWA(): boolean {
+    const nav = window.navigator as Navigator & { standalone?: boolean };
     return window.matchMedia('(display-mode: standalone)').matches ||
-           (window.navigator as any).standalone ||
+           Boolean(nav.standalone) ||
            document.referrer.includes('android-app://');
   }
 
@@ -14,7 +15,7 @@ export class PWAUtils {
   }
 
   // Get install prompt (call this in beforeinstallprompt event handler)
-  static async showInstallPrompt(deferredPrompt: any): Promise<boolean> {
+  static async showInstallPrompt(deferredPrompt: { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> } | null): Promise<boolean> {
     if (!deferredPrompt) return false;
 
     try {

@@ -1,7 +1,7 @@
 // Rocket Progress Component - Shows rocket animation based on score
 // Two options: SVG animation or JPEG image
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SoundManager, { SoundType } from '../utils/soundManager';
 
 interface RocketProgressProps {
@@ -22,6 +22,7 @@ const RocketProgress: React.FC<RocketProgressProps> = ({
   const [displayScore, setDisplayScore] = useState(0);
   const [lastMilestone, setLastMilestone] = useState(0);
   const soundManager = SoundManager.getInstance();
+  const animStartRef = useRef(0);
 
   // Check for milestones (every 10 points)
   useEffect(() => {
@@ -36,23 +37,24 @@ const RocketProgress: React.FC<RocketProgressProps> = ({
     }
   }, [score, lastMilestone, onMilestone, soundManager]);
 
-  // Animate score counting up
+  // Animate score counting up (functional update to avoid displayScore in deps)
   useEffect(() => {
-    const duration = 500; // 500ms animation
+    const duration = 500;
     const steps = 20;
-    const increment = (score - displayScore) / steps;
     let currentStep = 0;
-
     const timer = setInterval(() => {
       currentStep++;
-      if (currentStep <= steps) {
-        setDisplayScore(Math.min(score, Math.floor(displayScore + increment * currentStep)));
-      } else {
-        setDisplayScore(score);
-        clearInterval(timer);
-      }
+      setDisplayScore((prev) => {
+        if (currentStep === 1) animStartRef.current = prev;
+        const start = animStartRef.current;
+        const target = score;
+        if (currentStep >= steps) {
+          clearInterval(timer);
+          return target;
+        }
+        return Math.floor(start + (target - start) * (currentStep / steps));
+      });
     }, duration / steps);
-
     return () => clearInterval(timer);
   }, [score]);
 

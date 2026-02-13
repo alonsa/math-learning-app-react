@@ -18,6 +18,7 @@ const STATIC_FILES = [
   '/sounds/try_again.wav',
   '/sounds/button-click.wav',
   '/sounds/celebration.wav',
+  '/sounds/arcade_background.wav',
   // Add all letter sounds
   '/sounds/end_letters/A.wav',
   '/sounds/end_letters/B.wav',

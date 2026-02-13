@@ -97,11 +97,24 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
     fallDurationRef.current = duration;
   }, [generateProblem, gameSettings.grade, score]);
 
-  // Initial problem and fall animation
+  // Arcade background music: start on mount, stop on unmount
+  useEffect(() => {
+    if (soundManager.isSoundEnabled()) {
+      const id = setTimeout(() => soundManager.startArcadeBackgroundMusic(), 100);
+      return () => {
+        clearTimeout(id);
+        soundManager.stopArcadeBackgroundMusic();
+      };
+    }
+    return () => soundManager.stopArcadeBackgroundMusic();
+  }, [soundManager]);
+
+  // Initial problem and fall animation (defer setState to avoid synchronous setState in effect)
   useEffect(() => {
     if (!gameActive) return;
-    startNextProblem();
-  }, [gameActive]);
+    const id = setTimeout(() => startNextProblem(), 0);
+    return () => clearTimeout(id);
+  }, [gameActive, startNextProblem]);
 
   useEffect(() => {
     if (!gameActive || problem === null) return;
@@ -137,7 +150,7 @@ const ArcadeGame: React.FC<ArcadeGameProps> = ({
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [gameActive, problem, correctLane, playerLane, startNextProblem]);
+  }, [gameActive, problem, correctLane, playerLane, startNextProblem, soundManager]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
